@@ -11,6 +11,23 @@ const currencySymbol = () => new Intl.NumberFormat("en-IN", {
   style:"currency",
   currency:supportedCurrencies.includes(state.profile?.currency)?state.profile.currency:"INR"
 }).formatToParts(0).find(part=>part.type==="currency")?.value||"₹";
+const preferenceStorageKey = (name,userId=null) => `kharcha:${name}${userId?`:${userId}`:""}`;
+function getStoredPreference(name,userId) {
+  try {
+    return window.localStorage.getItem(preferenceStorageKey(name,userId));
+  } catch(error) {
+    console.error(`Unable to read the saved ${name} preference.`,error);
+    return null;
+  }
+}
+function saveStoredPreference(name,value,userId) {
+  try {
+    window.localStorage.setItem(preferenceStorageKey(name,userId),value);
+  } catch(error) {
+    console.error(`Unable to save the ${name} preference.`,error);
+    toast(`Could not save your ${name} preference in this browser.`,true);
+  }
+}
 const money = value => new Intl.NumberFormat(state.lang==="hi"?"hi-IN":"en-IN", {
   style:"currency",
   currency:supportedCurrencies.includes(state.profile?.currency)?state.profile.currency:"INR",
@@ -30,7 +47,7 @@ const isValidISODate = value => {
 };
 
 const state = {
-  user:null, profile:null, profileEditing:false, view:"dashboard", lang:"en", theme:"light", loading:false, loadError:"", calendarMonth:monthISO(), calendarDate:todayISO(),
+  user:null, profile:null, profileEditing:false, view:"dashboard", lang:getStoredPreference("language")==="hi"?"hi":"en", theme:getStoredPreference("theme")==="dark"?"dark":"light", loading:false, loadError:"", calendarMonth:monthISO(), calendarDate:todayISO(),
   expenses:[], incomes:[], budgets:[], goals:[], contributions:[], userCategories:[], categoriesError:"",
   notificationsEnabled:true, exportMonth:todayISO().slice(0,7), exportYear:String(new Date().getFullYear()),
   groups:[], notifications:[], transactionFilter:"", transactionCategory:"", transactionMethod:"", transactionType:"", transactionFrom:"", transactionTo:"", transactionSort:"date-desc", reportFrom:monthISO(), reportTo:todayISO(),
@@ -38,12 +55,39 @@ const state = {
   receiptFile:null, recurring:[], subscriptions:[], reminders:[], challenges:[], learning:[],
   adminProfiles:0
 };
+document.documentElement.dataset.theme=state.theme;
+document.documentElement.lang=state.lang;
 
 const copy = {
   en:{dashboard:"Dashboard",health:"Financial Health",transactions:"Transactions",addExpense:"Add Expense",addIncome:"Add Income",income:"Income",budgets:"Budget Management",categories:"Categories",recurring:"Recurring",subscriptions:"Subscriptions",calendar:"Calendar",insights:"Smart Insights",goals:"Savings goals",challenges:"Challenges",receipt:"Scan Receipt",assistant:"AI assistant",groups:"Group Expenses",friends:"Friends",analytics:"Spending Analytics",reports:"Reports & Analytics",exports:"Export Data",learning:"Learn Finance",tips:"Financial Tips",achievements:"Achievements",support:"Help & Support",profile:"My Profile",settings:"Settings",admin:"Admin",notifications:"Notifications",greeting:"Good to see you"},
   hi:{dashboard:"डैशबोर्ड",health:"वित्तीय स्वास्थ्य",transactions:"लेन-देन",addExpense:"खर्च जोड़ें",addIncome:"आय जोड़ें",income:"आय",budgets:"बजट प्रबंधन",categories:"श्रेणियाँ",recurring:"आवर्ती खर्च",subscriptions:"सदस्यताएँ",calendar:"कैलेंडर",insights:"समझदारी सुझाव",goals:"बचत लक्ष्य",challenges:"चुनौतियाँ",receipt:"रसीद स्कैनर",assistant:"AI सहायक",groups:"ग्रुप खर्च",friends:"दोस्त",analytics:"खर्च विश्लेषण",reports:"रिपोर्ट और विश्लेषण",exports:"डेटा निर्यात",learning:"वित्त सीखें",tips:"वित्तीय सुझाव",achievements:"उपलब्धियाँ",support:"सहायता",profile:"प्रोफाइल",settings:"सेटिंग्स",admin:"एडमिन",notifications:"सूचनाएं",greeting:"आपका स्वागत है"}
 };
 const tr = key => copy[state.lang]?.[key] || copy.en[key] || key;
+const uiTranslations = {
+  "Overview":"अवलोकन","Features":"विशेषताएँ","How it works":"यह कैसे काम करता है","Sign in to secure your data":"अपना डेटा सुरक्षित रखने के लिए साइन इन करें","Student finance, made clear":"छात्रों के वित्त का सरल प्रबंधन",
+  "Financial Health":"वित्तीय स्वास्थ्य","Transactions":"लेन-देन","Add Expense":"खर्च जोड़ें","Add Income":"आय जोड़ें","Income":"आय","Expense":"खर्च","Budget Management":"बजट प्रबंधन","Categories":"श्रेणियाँ","Recurring expenses":"आवर्ती खर्च","Subscriptions":"सदस्यताएँ","Financial calendar":"वित्तीय कैलेंडर","Smart Insights":"स्मार्ट सुझाव","Savings goals":"बचत लक्ष्य","Savings challenges":"बचत चुनौतियाँ","Scan Receipt":"रसीद स्कैन करें","AI assistant":"AI सहायक","Group expenses":"समूह खर्च","Friends":"दोस्त","Spending Analytics":"खर्च विश्लेषण","Reports & Analytics":"रिपोर्ट और विश्लेषण","Export Data":"डेटा निर्यात","Learn Finance":"वित्त सीखें","Financial Tips":"वित्तीय सुझाव","Achievements":"उपलब्धियाँ","Notifications":"सूचनाएँ","My Profile":"मेरी प्रोफ़ाइल","Settings":"सेटिंग्स","Help & Support":"सहायता","Admin":"एडमिन",
+  "OVERVIEW":"अवलोकन","TRANSACTIONS":"लेन-देन","REPORTING":"रिपोर्टिंग","ACCOUNT":"खाता","MORE":"अन्य","Kharcha":"खर्चा","Dashboard":"डैशबोर्ड","Log in":"लॉग इन","Log out":"लॉग आउट","Change language":"भाषा बदलें","Toggle theme":"थीम बदलें","Open navigation":"नेविगेशन खोलें","Open profile":"प्रोफ़ाइल खोलें","Search transactions":"लेन-देन खोजें",
+  "All transactions":"सभी लेन-देन","Income and expenses saved to your account":"आपके खाते में सहेजी गई आय और खर्च","Search title, category or method":"शीर्षक, श्रेणी या भुगतान विधि खोजें","Income & expenses":"आय और खर्च","Expenses":"खर्च","All categories":"सभी श्रेणियाँ","All payments":"सभी भुगतान","Newest":"नवीनतम","Oldest":"सबसे पुराने","Highest amount":"सबसे अधिक राशि","Lowest amount":"सबसे कम राशि","Export CSV":"CSV निर्यात करें","Date":"तारीख","Title":"शीर्षक","Type":"प्रकार","Category":"श्रेणी","Payment":"भुगतान","Amount":"राशि","Actions":"कार्रवाई","Details":"विवरण","Edit":"बदलें","Delete":"हटाएँ","No transactions match your filters.":"आपके फ़िल्टर से कोई लेन-देन नहीं मिला।",
+  "Profile":"प्रोफ़ाइल","Personal Kharcha settings":"खर्चा की व्यक्तिगत सेटिंग्स","Full name":"पूरा नाम","Email":"ईमेल","College":"कॉलेज","Monthly allowance":"मासिक भत्ता","Preferred currency":"पसंदीदा मुद्रा","Language":"भाषा","Save changes":"बदलाव सहेजें","Cancel":"रद्द करें","Edit profile":"प्रोफ़ाइल बदलें","Account security":"खाता सुरक्षा","Reset password":"पासवर्ड रीसेट करें","Send a secure password reset email to":"सुरक्षित पासवर्ड रीसेट ईमेल भेजें",
+  "Preferences":"प्राथमिकताएँ","Personalize your Kharcha experience.":"अपने खर्चा अनुभव को व्यक्तिगत बनाएँ।","Appearance":"दिखावट","Light":"लाइट","Dark":"डार्क","English":"अंग्रेज़ी","Save preferences":"प्राथमिकताएँ सहेजें","Enable in-app notifications and budget alerts":"ऐप सूचनाएँ और बजट अलर्ट चालू करें","Privacy & account":"गोपनीयता और खाता",
+  "No notifications":"कोई सूचना नहीं","Budget and savings alerts will appear here.":"बजट और बचत अलर्ट यहाँ दिखाई देंगे।","Notifications are off":"सूचनाएँ बंद हैं","Turn them on in Settings to receive budget alerts.":"बजट अलर्ट पाने के लिए सेटिंग्स में इन्हें चालू करें।","Mark all read":"सभी को पढ़ा हुआ चिह्नित करें","Read":"पढ़ा गया","Unread":"अपठित","Try again":"फिर से प्रयास करें","Loading your finances":"आपका वित्तीय डेटा लोड हो रहा है","Add expense":"खर्च जोड़ें","Add income":"आय जोड़ें","View all transactions":"सभी लेन-देन देखें","Set budget":"बजट तय करें","Download report":"रिपोर्ट डाउनलोड करें","Save expense":"खर्च सहेजें","Save income":"आय सहेजें","Description":"विवरण","Optional notes":"वैकल्पिक टिप्पणी","Payment method":"भुगतान विधि","Save":"सहेजें","Welcome back":"वापसी पर स्वागत है"
+};
+function localizeRenderedInterface() {
+  if(state.lang!=="hi")return;
+  const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+  let node;
+  while((node=walker.nextNode())) {
+    const text=node.nodeValue;
+    const trimmed=text.trim();
+    if(uiTranslations[trimmed])node.nodeValue=text.replace(trimmed,uiTranslations[trimmed]);
+  }
+  document.querySelectorAll("[placeholder],[aria-label],[title]").forEach(element=>{
+    for(const attribute of ["placeholder","aria-label","title"]) {
+      const value=element.getAttribute(attribute);
+      if(value&&uiTranslations[value])element.setAttribute(attribute,uiTranslations[value]);
+    }
+  });
+}
 const availableCategories = type => [...new Set([
   ...(type==="income"?INCOME_CATEGORIES:CATEGORIES),
   ...state.userCategories.filter(category=>category.type===type).map(category=>category.name)
@@ -72,8 +116,10 @@ async function loadProfile() {
     state.profile={full_name:user.user_metadata?.full_name||"",role:"student"};
     toast(`Profile: ${error.message}`,true);
   } else state.profile=data||{full_name:user.user_metadata?.full_name||"",role:"student"};
-  state.lang=state.profile.language||"en";
-  state.theme=state.profile.theme||"light";
+  const savedLanguage=getStoredPreference("language",user.id);
+  const savedTheme=getStoredPreference("theme",user.id);
+  state.lang=(savedLanguage==="hi"||savedLanguage==="en"?savedLanguage:state.profile.language)||"en";
+  state.theme=(savedTheme==="dark"||savedTheme==="light"?savedTheme:state.profile.theme)||"light";
   state.notificationsEnabled=state.profile.notifications_enabled!==false;
   document.documentElement.dataset.theme=state.theme;
   document.documentElement.lang=state.lang;
@@ -189,10 +235,10 @@ function totals() {
 
 function navigation() {
   if(!state.user) {
-    $("#navigation").innerHTML=`<button class="nav-button" data-action="landing"><span class="nav-icon">⌂</span><span>Overview</span></button>
-      <button class="nav-button" data-action="public-features"><span class="nav-icon">✦</span><span>Features</span></button>
-      <button class="nav-button" data-action="public-how"><span class="nav-icon">↗</span><span>How it works</span></button>`;
-    $("#sidebarUser").innerHTML="Student finance, made clear";
+    $("#navigation").innerHTML=`<button class="nav-button" data-action="landing"><span class="nav-icon">⌂</span><span>${tr("dashboard")}</span></button>
+      <button class="nav-button" data-action="public-features"><span class="nav-icon">✦</span><span>${state.lang==="hi"?"विशेषताएँ":"Features"}</span></button>
+      <button class="nav-button" data-action="public-how"><span class="nav-icon">↗</span><span>${state.lang==="hi"?"यह कैसे काम करता है":"How it works"}</span></button>`;
+    $("#sidebarUser").textContent=state.lang==="hi"?"छात्रों के वित्त का सरल प्रबंधन":"Student finance, made clear";
     return;
   }
   const entries=[
@@ -216,7 +262,7 @@ function navigation() {
     <button class="nav-button ${state.view===view?"active":""}" data-action="nav" data-view="${view}">
       <span class="nav-icon">${icon}</span><span>${tr(key)}</span>
     </button>`).join("")}</div>`).join("");
-  $("#sidebarUser").innerHTML=state.user ? escapeHTML(state.profile?.full_name||state.user.email) : "Sign in to secure your data";
+  $("#sidebarUser").textContent=state.user ? (state.profile?.full_name||state.user.email) : "Sign in to secure your data";
 }
 
 function render() {
@@ -249,13 +295,16 @@ function render() {
   const views={dashboard:dashboardView,health:financialHealthView,"add-expense":()=>entryFormView("expense"),"add-income":()=>entryFormView("income"),transactions:transactionsView,income:incomeView,budgets:budgetsView,categories:categoriesView,recurring:recurringView,subscriptions:subscriptionsView,calendar:calendarView,insights:smartInsightsView,goals:goalsView,challenges:challengesView,receipt:receiptView,assistant:assistantView,groups:groupsView,friends:friendsView,analytics:analyticsView,reports:analyticsView,exports:exportsView,learning:learningView,tips:financialTipsView,achievements:achievementsView,notifications:notificationsView,settings:settingsView,support:supportView,profile:profileView,admin:adminView};
   if(state.user&&state.loading) {
     $("#content").innerHTML=`<section class="card loading-card" role="status"><span class="loading-spinner" aria-hidden="true"></span><h2>Loading your finances</h2><p class="muted small">Fetching your private Kharcha data…</p></section>`;
+    localizeRenderedInterface();
     return;
   }
   if(state.user&&state.loadError) {
     $("#content").innerHTML=`<section class="card load-error" role="alert"><h2>We couldn’t load your account data</h2><p class="muted">${escapeHTML(state.loadError)}</p><p class="small muted">If Supabase reports missing tables or columns, apply the additive migrations in <code>supabase/migrations/</code>, including <code>20261121000200_dashboard_sections.sql</code>, then retry. Existing records are not deleted.</p><button class="button" data-action="retry-load">Try again</button></section>`;
+    localizeRenderedInterface();
     return;
   }
   $("#content").innerHTML=state.user ? (views[state.view]||dashboardView)() : signedOutView();
+  localizeRenderedInterface();
 }
 
 function signedOutView() {
@@ -1120,12 +1169,14 @@ function renderNotifications() {
   if(!state.notificationsEnabled){
     panel.innerHTML=`<div class="notification-item"><strong>Notifications are off</strong><p class="small muted">Turn them on in Settings to receive budget alerts.</p></div>`;
     panel.hidden=!panel.hidden;
+    localizeRenderedInterface();
     return;
   }
   if(!state.notifications.length) panel.innerHTML=`<div class="notification-item"><strong>No notifications</strong><p class="small muted">Budget and savings alerts will appear here.</p></div>`;
   else panel.innerHTML=state.notifications.map(n=>`<div class="notification-item"><strong>${escapeHTML(n.title)}</strong><p class="small muted">${escapeHTML(n.message)}</p></div>`).join("");
   panel.hidden=!panel.hidden;
-  if(!panel.hidden) markNotificationsRead();
+  localizeRenderedInterface();
+  if(!panel.hidden&&state.user) markNotificationsRead();
 }
 
 function closePublicNavigation() {
@@ -1160,7 +1211,13 @@ async function generateBudgetAlerts() {
 }
 
 document.addEventListener("click",async event=>{
-  const target=event.target.closest("[data-action],[data-open-auth],[data-close-modal],[data-auth-tab],[data-reset-password],[data-toggle-password]");
+  if(!(event.target instanceof Element))return;
+  const clickedElement=event.target;
+  const notificationPanel=$("#notificationPanel");
+  if(notificationPanel&&!notificationPanel.hidden&&!notificationPanel.contains(clickedElement)&&!$("#notificationButton").contains(clickedElement))notificationPanel.hidden=true;
+  const sidebar=$("#sidebar");
+  if(window.matchMedia("(max-width: 760px)").matches&&sidebar.classList.contains("open")&&!sidebar.contains(clickedElement)&&!$("#mobileMenu").contains(clickedElement))sidebar.classList.remove("open");
+  const target=clickedElement.closest("[data-action],[data-open-auth],[data-close-modal],[data-auth-tab],[data-reset-password],[data-toggle-password]");
   if(!target)return;
   const action=target.dataset.action;
   if(target.hasAttribute("data-toggle-password")){
@@ -1404,6 +1461,7 @@ document.addEventListener("submit",async event=>{
     const payload={full_name:data.get("full_name").trim(),college_name:data.get("college_name").trim(),monthly_allowance:data.get("monthly_allowance")?Number(data.get("monthly_allowance")):null,currency:data.get("currency"),language:data.get("language")};
     const {error}=await db.from("profiles").update(payload).eq("id",state.user.id);
     if(error)return toast(error.message,true);
+    saveStoredPreference("language",payload.language,state.user.id);
     state.profileEditing=false;
     await loadProfile();render();toast("Profile saved");
   }
@@ -1416,6 +1474,8 @@ document.addEventListener("submit",async event=>{
     state.theme=payload.theme;
     state.lang=payload.language;
     state.notificationsEnabled=payload.notifications_enabled;
+    saveStoredPreference("theme",state.theme,state.user.id);
+    saveStoredPreference("language",state.lang,state.user.id);
     document.documentElement.dataset.theme=state.theme;
     document.documentElement.lang=state.lang;
     render();toast("Preferences saved");
@@ -1429,15 +1489,20 @@ document.addEventListener("submit",async event=>{
 });
 
 document.addEventListener("input",event=>{
+  if(event.target.id==="globalSearch"){
+    state.transactionFilter=event.target.value;
+    state.view="transactions";
+    render();
+  }
   if(event.target.id==="transactionSearch"){
     state.transactionFilter=event.target.value;
+    $("#globalSearch").value=event.target.value;
     const cursor=event.target.selectionStart;
     render();
     const search=$("#transactionSearch");
     search?.focus();
     if(cursor!==null)search?.setSelectionRange(cursor,cursor);
   }
-  if(event.target.id==="chatInput"&&event.key==="Enter")event.target.blur();
 });
 document.addEventListener("change",event=>{
   if(event.target.id==="transactionEntryType")toggleTransactionType(event.target.value);
@@ -1455,7 +1520,7 @@ document.addEventListener("change",event=>{
   if(event.target.id==="ocrAmount"||event.target.id==="ocrMerchant"||event.target.id==="ocrDate")return;
 });
 document.addEventListener("keydown",async event=>{
-  if(event.key==="Escape"){document.querySelectorAll(".modal-backdrop").forEach(m=>m.hidden=true);$("#notificationPanel").hidden=true;}
+  if(event.key==="Escape"){document.querySelectorAll(".modal-backdrop").forEach(m=>m.hidden=true);$("#notificationPanel").hidden=true;$("#sidebar").classList.remove("open");}
   if(event.target.id==="chatInput"&&event.key==="Enter"){const q=event.target.value.trim();if(q){event.target.value="";await askAssistant(q);}}
 });
 
@@ -1465,33 +1530,25 @@ $("#authButton").addEventListener("click",async()=>{
   if(error)toast(error.message,true);else toast("Signed out");
 });
 $("#themeButton").addEventListener("click",async()=>{
-  const previous=state.theme;
   state.theme=state.theme==="dark"?"light":"dark";
   document.documentElement.dataset.theme=state.theme;
+  saveStoredPreference("theme",state.theme,state.user?.id);
   if(state.user){
     const {error}=await db.from("profiles").update({theme:state.theme}).eq("id",state.user.id);
-    if(error){state.theme=previous;document.documentElement.dataset.theme=previous;toast(error.message,true);}
+    if(error)toast(error.message,true);
   }
 });
 $("#languageButton").addEventListener("click",async()=>{
-  const previous=state.lang;
   state.lang=state.lang==="en"?"hi":"en";document.documentElement.lang=state.lang;
+  saveStoredPreference("language",state.lang,state.user?.id);
   if(state.user){
     const {error}=await db.from("profiles").update({language:state.lang}).eq("id",state.user.id);
-    if(error){state.lang=previous;document.documentElement.lang=previous;toast(error.message,true);}
+    if(error)toast(error.message,true);
   }
   render();
 });
 $("#notificationButton").addEventListener("click",()=>renderNotifications());
 $("#mobileMenu").addEventListener("click",()=>$("#sidebar").classList.toggle("open"));
-$("#globalSearch")?.addEventListener("keydown",event=>{
-  if(event.key==="Enter"){
-    state.view="transactions";
-    state.transactionFilter=event.currentTarget.value.trim();
-    render();
-  }
-});
-
 db.auth.onAuthStateChange(async(_event,session)=>{
   const nextUser=session?.user||null;
   const changed=state.user?.id!==nextUser?.id;

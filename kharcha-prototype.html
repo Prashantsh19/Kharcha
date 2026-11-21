@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kharcha – Student Expense Manager (UI prototype)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Hind:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F5F8;--surface:#FFFFFF;--ink:#14213D;--muted:#566275;--line:#E0E6ED;--past:#D5DCE6;
+  --teal:#0A7A6B;--teal-soft:#DDF3EE;--teal-ink:#075E52;--on-teal:#FFFFFF;
+  --gold:#E8A317;--gold-soft:#FFF1CC;--gold-ink:#7A5600;
+  --coral:#C93B1E;--coral-soft:#FCE3DC;--coral-ink:#8F2610;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1524;--surface:#172035;--ink:#EAF0FA;--muted:#9AA6BC;--line:#27324B;--past:#2B3853;
+    --teal:#2EC4AD;--teal-soft:#12352F;--teal-ink:#7FE3D0;--on-teal:#06231E;
+    --gold:#F5C242;--gold-soft:#3A2F10;--gold-ink:#F7D780;
+    --coral:#FF8468;--coral-soft:#40201A;--coral-ink:#FFB4A3;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1524;--surface:#172035;--ink:#EAF0FA;--muted:#9AA6BC;--line:#27324B;--past:#2B3853;
+  --teal:#2EC4AD;--teal-soft:#12352F;--teal-ink:#7FE3D0;--on-teal:#06231E;
+  --gold:#F5C242;--gold-soft:#3A2F10;--gold-ink:#F7D780;
+  --coral:#FF8468;--coral-soft:#40201A;--coral-ink:#FFB4A3;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 'Hind',system-ui,-apple-system,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Bricolage Grotesque','Hind',system-ui,sans-serif;letter-spacing:-.015em;line-height:1.15;margin:0;font-weight:700}
+h1{font-size:clamp(26px,4.2vw,40px)}
+h2{font-size:20px}
+h3{font-size:16px}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.app{display:grid;grid-template-columns:216px minmax(0,1fr);min-height:100vh}
+.side{position:sticky;top:0;align-self:start;height:100vh;padding:24px 14px;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:28px}
+.brand{display:flex;align-items:center;gap:10px;padding:0 8px}
+.mark{width:34px;height:34px;border-radius:50%;background:var(--gold);color:#3A2A00;display:grid;place-items:center;font:700 19px 'Bricolage Grotesque',sans-serif}
+.word{font:700 21px 'Bricolage Grotesque',sans-serif;letter-spacing:-.02em}
+nav{display:flex;flex-direction:column;gap:4px}
+.nb{display:flex;align-items:center;gap:12px;padding:10px 12px;border:0;background:none;border-radius:10px;color:var(--muted);font-weight:500;text-align:left}
+.nb svg{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nb:hover{background:var(--bg);color:var(--ink)}
+.nb.on{background:var(--teal-soft);color:var(--teal-ink);font-weight:600}
+main{padding:24px 32px 56px;max-width:1120px;width:100%}
+.top{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center;justify-content:space-between;margin-bottom:22px}
+.ctrls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{border:0;background:none;padding:6px 14px;border-radius:999px;font-size:14px;font-weight:500;color:var(--muted)}
+.seg button.on{background:var(--ink);color:var(--surface)}
+.ib{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-size:14px;font-weight:500}
+.login-btn{border:0;background:var(--teal);color:var(--on-teal);border-radius:999px;padding:8px 16px;font-weight:600}
+.login-btn:hover{filter:brightness(.94)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px}
+.card+.card,.grid2,.grid3{margin-top:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid2>.card,.grid3>.card{margin-top:0}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:12px;padding:11px 18px;font-weight:600;background:var(--teal);color:var(--on-teal)}
+.btn.ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.btn.sm{padding:7px 12px;font-size:14px;border-radius:10px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.quick{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.chip{display:inline-block;padding:2px 10px;border-radius:999px;font-size:13px;font-weight:600;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.chip.ok{background:var(--teal-soft);color:var(--teal-ink);border-color:transparent}
+.chip.warn{background:var(--gold-soft);color:var(--gold-ink);border-color:transparent}
+.chip.bad{background:var(--coral-soft);color:var(--coral-ink);border-color:transparent}
+/* runway */
+.hero{padding:26px}
+.hero h1{max-width:20ch}
+.hero .sub{margin-top:8px;color:var(--muted);max-width:60ch}
+.strip{display:grid;grid-template-columns:repeat(15,1fr);gap:5px;margin-top:22px}
+.day{height:46px;border-radius:9px;font-size:13px;padding:4px 6px;font-weight:500;position:relative}
+.day.past{background:var(--past);color:var(--muted)}
+.day.now{background:var(--ink);color:var(--surface);font-weight:700}
+.day.ok{background:var(--teal);color:var(--on-teal)}
+.day.gap{background:repeating-linear-gradient(135deg,var(--coral-soft) 0 6px,transparent 6px 12px);border:1.5px dashed var(--coral);color:var(--coral-ink)}
+.day.edge::after{content:"";position:absolute;right:-4px;top:-4px;bottom:-4px;width:3px;border-radius:3px;background:var(--gold)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:14px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:6px;vertical-align:-1px}
+.slider{margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}
+input[type=range]{width:100%;accent-color:var(--teal);margin:10px 0 4px}
+/* bars */
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar>i{display:block;height:100%;border-radius:99px;background:var(--teal)}
+.bar>i.warn{background:var(--gold)}.bar>i.bad{background:var(--coral)}
+.list>*{padding:12px 0;border-top:1px solid var(--line)}
+.list>*:first-child{border-top:0;padding-top:0}
+.list>*:last-child{padding-bottom:0}
+.amt{font-variant-numeric:tabular-nums;font-weight:600}
+/* tabs */
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:18px;flex-wrap:wrap}
+.tab{border:0;background:none;padding:10px 14px;font-weight:600;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-1px}
+.tab.on{color:var(--ink);border-bottom-color:var(--teal)}
+textarea,input[type=text],input[type=number],select{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg)}
+textarea{min-height:120px;resize:vertical}
+label.f{display:block;font-size:14px;font-weight:600;margin-bottom:5px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.samples{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 0}
+.smsview{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:15px;white-space:pre-wrap;word-break:break-word;margin-bottom:14px}
+mark{background:var(--gold-soft);color:var(--gold-ink);border-radius:4px;padding:0 3px;font-weight:600}
+mark.m2{background:var(--teal-soft);color:var(--teal-ink)}
+.drop{display:block;border:2px dashed var(--line);border-radius:14px;padding:26px;text-align:center;cursor:pointer;color:var(--muted)}
+.drop:hover{border-color:var(--teal)}
+.drop input{display:none}
+.receipt{position:relative;background:#FFFEF8;color:#26262B;border-radius:10px;padding:18px 20px;font:14px/1.7 ui-monospace,Menlo,Consolas,monospace;border:1px solid #E6E2CF;overflow:hidden;max-width:340px}
+.receipt .ln{display:flex;justify-content:space-between}
+.receipt hr{border:0;border-top:1px dashed #B9B49A;margin:8px 0}
+.scanline{position:absolute;left:0;right:0;height:3px;background:var(--teal);box-shadow:0 0 16px 4px rgba(10,122,107,.5);animation:scan 1.1s ease-in-out 1}
+@keyframes scan{from{top:0}to{top:100%}}
+/* split */
+.av{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px;flex:none}
+.people{display:flex;gap:14px;flex-wrap:wrap}
+.checks{display:flex;gap:8px;flex-wrap:wrap}
+.checks label{display:inline-flex;gap:6px;align-items:center;padding:6px 12px;border:1px solid var(--line);border-radius:999px;font-size:14px;background:var(--bg)}
+/* chat */
+.log{height:340px;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:4px 2px 12px}
+.msg{max-width:82%;padding:10px 14px;border-radius:14px;font-size:15.5px}
+.msg.u{align-self:flex-end;background:var(--teal);color:var(--on-teal);border-bottom-right-radius:4px}
+.msg.b{align-self:flex-start;background:var(--bg);border:1px solid var(--line);border-bottom-left-radius:4px}
+.chat-in{display:flex;gap:8px;margin-top:8px}
+/* misc */
+.kpi{font:700 30px 'Bricolage Grotesque',sans-serif;letter-spacing:-.02em}
+.expense-chart{display:grid;grid-template-columns:minmax(170px,220px) 1fr;gap:26px;align-items:center;margin-top:18px}
+.pie{width:min(220px,100%);aspect-ratio:1;border-radius:50%;position:relative;margin:auto}
+.pie::after{content:"";position:absolute;inset:23%;border-radius:50%;background:var(--surface)}
+.pie-center{position:absolute;inset:23%;z-index:1;display:grid;place-content:center;text-align:center;line-height:1.25}
+.pie-center strong{font:700 20px 'Bricolage Grotesque',sans-serif}
+.pie-legend{display:grid;gap:10px}
+.pie-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+.pie-label{display:flex;align-items:center;gap:9px;min-width:0}
+.pie-swatch{width:12px;height:12px;border-radius:4px;flex:none}
+.modal{position:fixed;inset:0;z-index:30;background:rgba(7,15,29,.58);display:grid;place-items:center;padding:18px}
+.modal[hidden]{display:none}
+.modal-card{width:min(100%,420px);background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:0 20px 70px rgba(0,0,0,.24)}
+.modal-card input{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);margin-top:5px}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.tip{border-left:4px solid var(--gold);border-radius:4px 14px 14px 4px}
+.tip.bad{border-left-color:var(--coral)}.tip.ok{border-left-color:var(--teal)}
+.rule{font-size:13px;color:var(--muted);margin-top:8px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;padding:10px 8px;border-top:1px solid var(--line)}
+th{font-weight:600;color:var(--muted);font-size:14px;border-top:0}
+.privacy{background:var(--teal-soft);color:var(--teal-ink);border-radius:14px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
+.foot{margin-top:28px;font-size:13px;color:var(--muted)}
+#toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--surface);padding:11px 18px;border-radius:12px;font-weight:500;opacity:0;pointer-events:none;transition:.25s;max-width:92vw;z-index:20;text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  .side{position:fixed;top:auto;bottom:0;left:0;right:0;height:auto;flex-direction:row;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));border-right:0;border-top:1px solid var(--line);z-index:10;gap:0}
+  .brand{display:none}
+  nav{flex-direction:row;width:100%;justify-content:space-around}
+  .nb{flex-direction:column;gap:2px;font-size:12px;padding:6px 8px;text-align:center}
+  main{padding:18px 16px 110px}
+  .grid2,.grid3,.fields{grid-template-columns:1fr}
+  .expense-chart{grid-template-columns:1fr;gap:20px}
+  .strip{grid-template-columns:repeat(10,1fr);gap:4px}
+  .day{height:40px;font-size:12px;padding:3px 4px}
+  .hero{padding:20px}
+}
+@media (prefers-reduced-motion:reduce){.scanline{animation:none;display:none}#toast{transition:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><span class="mark">₹</span><span class="word">kharcha</span></div>
+    <nav id="nav" aria-label="Main"></nav>
+  </aside>
+  <main id="main"></main>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div class="modal" id="loginModal" hidden>
+  <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <div class="row"><h2 id="loginTitle">Log in to Kharcha</h2><button class="ib" type="button" data-act="closeLogin" aria-label="Close login">✕</button></div>
+    <p class="small muted" style="margin:8px 0 18px">Sign-in is a visual prototype and is not connected to an account service.</p>
+    <div class="seg" role="group" aria-label="Choose account type" style="width:100%;margin-bottom:18px"><button type="button" class="on" data-act="loginType" data-type="student" aria-pressed="true" style="flex:1">Student</button><button type="button" data-act="loginType" data-type="admin" aria-pressed="false" style="flex:1">College admin</button></div>
+    <form id="loginForm"><label class="f" for="loginEmail">Email</label><input id="loginEmail" name="email" type="email" autocomplete="email" placeholder="student@college.edu" required>
+    <label class="f" for="loginPassword" style="margin-top:14px">Password</label><input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+    <div class="modal-actions"><button class="btn ghost" type="button" data-act="closeLogin">Cancel</button><button class="btn" type="submit">Log in</button></div></form>
+  </section>
+</div>
+
+<script>
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const inr=n=>'₹'+Math.round(n).toLocaleString('en-IN');
+const ord=n=>n+(['th','st','nd','rd'][(n%100>10&&n%100<14)?0:(n%10<4?n%10:0)]);
+const CATS=['Food','Travel','Books','Fun','Hostel','Other'];
+const icons={
+  home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',
+  add:'<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
+  split:'<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 14c2.8 0 5 2 5 5"/>',
+  ask:'<path d="M4 5h16v11H9l-5 4z"/>',
+  tips:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 00-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0012 3z"/>',
+  campus:'<path d="M3 21h18M5 21V9l7-5 7 5v12"/><path d="M9 21v-6h6v6"/>'
+};
+/* ---------- i18n (UI labels; the rest is English in this prototype) ---------- */
+const L={
+ en:{nav_home:'Home',nav_add:'Add entry',nav_split:'Split',nav_ask:'Ask',nav_tips:'Tips',nav_campus:'Campus',
+     greet:'Hi, Aman',paste:'Paste UPI SMS',scan:'Scan bill',safe:'Safe limit per day',budgets:'Category budgets',recent:'Recent entries',
+     whatif:'What if I spend',student:'Student',admin:'College admin'},
+ hi:{nav_home:'होम',nav_add:'जोड़ें',nav_split:'बंटवारा',nav_ask:'पूछें',nav_tips:'सुझाव',nav_campus:'कैंपस',
+     greet:'नमस्ते, अमन',paste:'UPI SMS पेस्ट करें',scan:'बिल स्कैन करें',safe:'रोज़ की सुरक्षित सीमा',budgets:'श्रेणी के बजट',recent:'हाल की एंट्री',
+     whatif:'अगर मैं रोज़ खर्च करूँ',student:'छात्र',admin:'कॉलेज एडमिन'}
+};
+const t=k=>(L[S.lang]&&L[S.lang][k])||L.en[k]||k;
+/* ---------- state ---------- */
+const S={
+ lang:'en',role:'student',loginType:'student',view:'home',tab:'sms',adminTab:'overview',
+ today:14,days:30,allowance:9000,rate:null,
+ exp:[
+  {day:1,m:'Hostel mess advance',cat:'Hostel',amt:1500,src:'manual'},
+  {day:2,m:'Campus canteen',cat:'Food',amt:120,src:'manual'},
+  {day:3,m:'Zomato',cat:'Food',amt:340,src:'sms'},
+  {day:4,m:'Uber',cat:'Travel',amt:180,src:'sms'},
+  {day:5,m:'Amazon (books)',cat:'Books',amt:650,src:'scan'},
+  {day:6,m:'Blinkit',cat:'Food',amt:420,src:'sms'},
+  {day:7,m:'Netflix share',cat:'Fun',amt:199,src:'sms'},
+  {day:8,m:'Campus canteen',cat:'Food',amt:90,src:'manual'},
+  {day:9,m:'Zomato',cat:'Food',amt:380,src:'sms'},
+  {day:10,m:'Jio recharge',cat:'Other',amt:299,src:'sms'},
+  {day:11,m:'Rapido',cat:'Travel',amt:95,src:'sms'},
+  {day:12,m:'Zomato',cat:'Food',amt:410,src:'sms'},
+  {day:13,m:'PVR Cinemas',cat:'Fun',amt:450,src:'manual'},
+  {day:14,m:'Zomato',cat:'Food',amt:467,src:'sms'}
+ ],
+ budgets:{Food:2500,Travel:600,Books:800,Fun:500,Hostel:1500,Other:400},
+ lastMonth:{Food:2650,Travel:540,Books:210,Fun:380,Hostel:1500,Other:299},
+ draft:null,sms:'',scanning:false,scanDone:false,
+ group:{
+  name:'Room 214 · Hostel B',members:['You','Rohit','Karan','Dev'],
+  exps:[{d:'Wi-Fi recharge',amt:800,by:0,among:[0,1,2,3]},{d:'Pizza night',amt:1200,by:1,among:[0,1,2,3]},{d:'Water can + cooler repair',amt:480,by:2,among:[0,1,2,3]}],
+  paid:[]
+ },
+ chat:[{r:'b',t:'Namaste! Ask me about your spending in Hindi, Hinglish or English.'}],
+ canteenP:0
+};
+const SAMPLES={
+ phonepe:'Paid ₹340.00 to Zomato Ltd on 14 Sep 2026 via PhonePe. UPI Ref No. 458712093456.',
+ gpay:'You paid ₹180.00 to Uber India via Google Pay. UPI transaction ID: 562398710245.',
+ bank:'Rs 95.00 debited from A/c XX4521 on 13-09-26 to VPA rapido@ybl (UPI Ref 123456789012).',
+ unknown:'Rs 250.00 paid to RAMESH KUMAR STORE on 12-09-26 UPI Ref 998877665544'
+};
+/* ---------- money maths ---------- */
+function catTotals(){const o={};CATS.forEach(c=>o[c]=0);S.exp.forEach(e=>o[e.cat]+=e.amt);return o}
+function calc(){
+  const spent=S.exp.reduce((a,e)=>a+e.amt,0),remaining=S.allowance-spent,avg=spent/S.today,daysLeft=S.days-S.today;
+  return{spent,remaining,avg,daysLeft,safe:Math.max(0,remaining)/daysLeft};
+}
+function lastCovered(rate){const c=calc();if(c.remaining<=0)return S.today;return Math.min(S.days,S.today+Math.floor(c.remaining/rate))}
+/* ---------- UPI SMS parser (regex + keyword map) ---------- */
+const KW=[['Food',['zomato','swiggy','blinkit','zepto','canteen','mess','domino','cafe','chai','pizza','burger','kfc','mcdonald','bakery']],
+ ['Travel',['uber','ola','rapido','irctc','redbus','metro','indigo','petrol']],
+ ['Fun',['netflix','spotify','pvr','bookmyshow','hotstar','inox','steam']],
+ ['Hostel',['hostel','laundry','rent','warden']],
+ ['Books',['stationer','xerox','print','book','notebook','udemy']],
+ ['Other',['jio','airtel','amazon','flipkart','myntra','recharge']]];
+function tidy(m){return m.replace(/@.*$/,'').replace(/[_-]+/g,' ').toLowerCase().replace(/\b\w/g,c=>c.toUpperCase()).trim()}
+function guessCat(m){const s=m.toLowerCase();for(const [c,ws] of KW){if(ws.some(w=>s.includes(w)))return c}return null}
+function parseSMS(text){
+  if(!text.trim())return null;
+  const am=text.match(/(?:Rs\.?|INR|₹)\s*([\d,]+(?:\.\d{1,2})?)/i);
+  const mm=text.match(/\b(?:to|at)\s+(?:VPA\s+)?([A-Za-z][A-Za-z0-9 &.'@_-]{1,28}?)(?=\s+(?:on|via|using|from|UPI|Ref|\()|\s*[.,(]|$)/i);
+  const dm=text.match(/(\d{1,2})[-\s\/]([A-Za-z]{3}|\d{1,2})[-\s\/](\d{2,4})/);
+  const rm=text.match(/(?:Ref(?:erence)?(?:\s*No\.?)?|transaction ID)[:\s]*(\d{6,})/i);
+  const app=/phonepe/i.test(text)?'PhonePe':/google pay|gpay/i.test(text)?'Google Pay':/paytm/i.test(text)?'Paytm':'UPI / bank SMS';
+  const merchant=mm?tidy(mm[1]):'';
+  const cat=merchant?guessCat(merchant):null;
+  return{amount:am?parseFloat(am[1].replace(/,/g,'')):0,merchant,cat:cat||'Other',known:!!cat,date:dm?dm[0]:'Today',app,ref:rm?rm[1]:'',rawAmt:am?am[0]:'',rawMerch:mm?mm[1]:''};
+}
+function highlight(text,d){
+  let h=esc(text);
+  if(d.rawAmt)h=h.replace(esc(d.rawAmt),'<mark>'+esc(d.rawAmt)+'</mark>');
+  if(d.rawMerch)h=h.replace(esc(d.rawMerch),'<mark class="m2">'+esc(d.rawMerch)+'</mark>');
+  return h;
+}
+/* ---------- split maths ---------- */
+function nets(){
+  const g=S.group,n=g.members.map(()=>0);
+  g.exps.forEach(e=>{const sh=e.amt/e.among.length;n[e.by]+=e.amt;e.among.forEach(i=>n[i]-=sh)});
+  g.paid.forEach(p=>{n[p.from]+=p.amt;n[p.to]-=p.amt});
+  return n;
+}
+function settlements(){
+  const n=nets().map(x=>Math.round(x)),cr=[],db=[];
+  n.forEach((v,i)=>{if(v>0)cr.push({i,v});else if(v<0)db.push({i,v:-v})});
+  cr.sort((a,b)=>b.v-a.v);db.sort((a,b)=>b.v-a.v);
+  const out=[];let a=0,b=0;
+  while(a<cr.length&&b<db.length){const x=Math.min(cr[a].v,db[b].v);out.push({from:db[b].i,to:cr[a].i,amt:x});cr[a].v-=x;db[b].v-=x;if(!cr[a].v)a++;if(!db[b].v)b++}
+  return out;
+}
+/* ---------- tips (rule-based, every tip shows its rule) ---------- */
+function tips(){
+  const c=calc(),by=catTotals(),out=[];
+  const fp=by.Food/c.spent;
+  if(fp>0.35)out.push({tone:'warn',t:`Food is ${Math.round(fp*100)}% of your spending`,b:`You've spent ${inr(by.Food)} on food out of ${inr(c.spent)}. Your food budget is ${inr(S.budgets.Food)}.`,rule:'Rule: food share above 35% of monthly spend'});
+  const z=S.exp.filter(e=>e.m==='Zomato');
+  if(z.length>=3){const tot=z.reduce((a,e)=>a+e.amt,0),sv=Math.floor(z.length/2)*(tot/z.length-90);
+    out.push({tone:'warn',t:`${z.length} Zomato orders cost ${inr(tot)}`,b:`Swapping half of them for canteen meals (about ₹90 each) would save around ${inr(sv)} a month.`,rule:'Rule: 3 or more orders from one delivery app in a month'});}
+  CATS.forEach(k=>{if(by[k]>S.budgets[k])out.push({tone:'bad',t:`${k} is over budget by ${inr(by[k]-S.budgets[k])}`,b:`Budget ${inr(S.budgets[k])}, spent ${inr(by[k])}. Skip ${k.toLowerCase()} spends for a few days to catch up.`,rule:'Rule: category spend above its budget'})});
+  if(c.avg>c.safe)out.push({tone:'bad',t:`You spend ${inr(c.avg)}/day but can afford ${inr(c.safe)}/day`,b:`At this pace your money ends on the ${ord(lastCovered(c.avg))}. Cutting ${inr(c.avg-c.safe)} a day fixes it.`,rule:'Rule: average daily spend above safe daily limit'});
+  return out;
+}
+/* ---------- chatbot (rule-based demo; production uses an LLM API) ---------- */
+function detectLang(q){
+  if(/[\u0900-\u097F]/.test(q))return'dev';
+  if(/\b(kitna|kitne|kharch|kharcha|mahine|mahina|pichhle|pichle|mera|meri|kab|kahan|kya|paise|paisa|khatam|bachat|hua|hai|khana|sabse)\b/i.test(q))return'hi';
+  return S.lang==='hi'?'dev':'en';
+}
+const CQ={Food:/food|khana|khane|खाना|खाने|zomato|swiggy/i,Travel:/travel|uber|yatra|यात्रा|safar|सफर/i,Fun:/\bfun\b|movie|entertain|मनोरंजन|फिल्म/i,Books:/book|kitab|किताब/i,Hostel:/hostel|हॉस्टल|\bmess\b|\brent\b/i};
+const CDEV={Food:'खाने',Travel:'यात्रा',Fun:'मनोरंजन',Books:'किताबों',Hostel:'हॉस्टल',Other:'अन्य'};
+function answer(q){
+  const lg=detectLang(q),c=calc(),by=catTotals();
+  const cat=Object.keys(CQ).find(k=>CQ[k].test(q));
+  if(cat){
+    const last=/last month|pichhle|pichle|पिछले/i.test(q),a=last?S.lastMonth[cat]:by[cat],o=last?by[cat]:S.lastMonth[cat];
+    if(lg==='dev')return`${last?'पिछले महीने':'इस महीने अब तक'} ${CDEV[cat]} पर ${inr(a)} खर्च हुआ। ${last?'इस महीने अब तक':'पिछले महीने कुल'} ${inr(o)}।`;
+    if(lg==='hi')return`${last?'Pichhle mahine':'Is mahine ab tak'} ${cat.toLowerCase()} pe ${inr(a)} kharch hua. ${last?'Is mahine ab tak':'Pichhle mahine total'} ${inr(o)}.`;
+    return`You spent ${inr(a)} on ${cat.toLowerCase()} ${last?'last month':'so far this month'}. ${last?'This month so far: ':'Last month total: '}${inr(o)}.`;
+  }
+  if(/kab\b|when|khatam|खत्म|कब|run out|runway|chalenge/i.test(q)){
+    const r=lastCovered(c.avg),full=r>=S.days;
+    if(lg==='dev')return full?'इसी रफ़्तार से पैसे महीने के अंत तक चलेंगे।':`अभी के ${inr(c.avg)}/दिन के हिसाब से पैसे ${r} तारीख तक चलेंगे। ${inr(c.safe)}/दिन रखें तो महीने के अंत तक चलेंगे।`;
+    if(lg==='hi')return full?'Isi speed se paise mahine ke end tak chalenge.':`Abhi ke ${inr(c.avg)}/din ke hisaab se paise ${r} tarikh tak chalenge. ${inr(c.safe)}/din rakho to mahine ke end tak chalenge.`;
+    return full?'At this pace your money lasts the whole month.':`At ${inr(c.avg)}/day your money lasts until the ${ord(r)}. Keep to ${inr(c.safe)}/day and it lasts all month.`;
+  }
+  if(/sabse|most|highest|zyada|सबसे|\btop\b|biggest/i.test(q)){
+    const [k,v]=Object.entries(by).sort((a,b)=>b[1]-a[1])[0],p=Math.round(v/c.spent*100);
+    if(lg==='dev')return`सबसे ज़्यादा खर्च ${CDEV[k]} पर हुआ: ${inr(v)} (${p}%)।`;
+    if(lg==='hi')return`Sabse zyada kharch ${k.toLowerCase()} pe hua: ${inr(v)} (${p}%).`;
+    return`Your biggest category is ${k.toLowerCase()}: ${inr(v)} (${p}% of spending).`;
+  }
+  if(/save|bachat|bachao|बचत|\btip|सुझाव/i.test(q)){
+    const z=S.exp.filter(e=>e.m==='Zomato'),tot=z.reduce((a,e)=>a+e.amt,0),sv=Math.floor(z.length/2)*(tot/Math.max(1,z.length)-90);
+    if(lg==='dev')return`सबसे बड़ी बचत: Zomato के ${z.length} ऑर्डर (${inr(tot)})। आधे कैंटीन से करें तो करीब ${inr(sv)} बचेंगे।`;
+    if(lg==='hi')return`Sabse badi bachat: Zomato ke ${z.length} orders (${inr(tot)}). Aadhe canteen se karo to lagbhag ${inr(sv)} bachenge.`;
+    return`Biggest saving chance: ${z.length} Zomato orders (${inr(tot)}). Swapping half for canteen meals saves about ${inr(sv)}.`;
+  }
+  return lg==='dev'?'मैं खर्च, बजट और बचत के बारे में बता सकता हूँ। जैसे: "पिछले महीने खाने पर कितना खर्च हुआ?"':lg==='hi'?'Main kharch, budget aur bachat ke baare me bata sakta hoon. Jaise: "Pichhle mahine food pe kitna kharch hua?"':'I can answer about spending, budgets and savings. Try: "How much did I spend on food last month?"';
+}
+/* ---------- render ---------- */
+function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('show'),3200)}
+const NAV={student:[['home','nav_home'],['add','nav_add'],['split','nav_split'],['ask','nav_ask'],['tips','nav_tips']],admin:[['campus','nav_campus']]};
+function renderNav(){
+  $('#nav').innerHTML=NAV[S.role].map(([v,k])=>`<button class="nb ${S.view===v?'on':''}" data-act="nav" data-v="${v}" ${S.view===v?'aria-current="page"':''}><svg viewBox="0 0 24 24" aria-hidden="true">${icons[v]}</svg><span>${t(k)}</span></button>`).join('');
+}
+function topbar(title){
+  return`<div class="top"><h1>${title}</h1><div class="ctrls">
+    <div class="seg" role="group" aria-label="Role"><button class="${S.role==='student'?'on':''}" data-act="role" data-r="student">${t('student')}</button><button class="${S.role==='admin'?'on':''}" data-act="role" data-r="admin">${t('admin')}</button></div>
+    <button class="ib" data-act="lang" aria-label="Change language">${S.lang==='en'?'हिन्दी':'English'}</button>
+    <button class="ib" data-act="theme" aria-label="Toggle dark mode">Theme</button><button class="login-btn" data-act="login">Log in</button></div></div>`;
+}
+function render(){
+  renderNav();
+  const v=S.view,m=$('#main');
+  const map={home:[t('greet'),homeView],add:['Add an entry',addView],split:['Split with roommates',splitView],ask:['Ask Kharcha',askView],tips:['Saving tips',tipsView],campus:['Campus overview',adminView]};
+  const [title,fn]=map[v];
+  m.innerHTML=topbar(title)+fn()+`<p class="foot">Interactive prototype with sample data. Nothing here is stored or sent anywhere.</p>`;
+  if(v==='ask'){const l=$('#log');if(l)l.scrollTop=l.scrollHeight}
+}
+/* --- home --- */
+function runwayHTML(r){
+  const c=calc(),last=lastCovered(r),full=last>=S.days,short=S.days-last;
+  const title=S.lang==='hi'?(full?'आपके पैसे पूरे महीने चलेंगे।':`आपके पैसे ${last} तारीख तक चलेंगे।`):(full?'Your money will last the whole month.':`Your money will last until the ${ord(last)}.`);
+  const sub=S.lang==='hi'?(full?`इस रफ़्तार पर आप सही रास्ते पर हैं। सुरक्षित सीमा ${inr(c.safe)}/दिन है।`:`${inr(r)}/दिन पर ${short} दिन कम पड़ेंगे। आज से ${inr(c.safe)}/दिन रखें तो ${S.days} तारीख तक पहुँचेंगे।`)
+    :(full?`You're on track at ${inr(r)}/day. Your safe limit is ${inr(c.safe)}/day.`:`That's ${short} days short at ${inr(r)}/day. Spend ${inr(c.safe)}/day from today and you make it to the ${ord(S.days)}.`);
+  let cells='';
+  for(let d=1;d<=S.days;d++){const k=d<S.today?'past':d===S.today?'now':d<=last?'ok':'gap';
+    cells+=`<div class="day ${k} ${(d===last&&!full)?'edge':''}" title="Day ${d}${d===S.today?' (today)':''}${(d===last&&!full)?' – last day your money covers':''}">${d}</div>`}
+  return`<h1>${title}</h1><p class="sub">${sub}</p><div class="strip" role="img" aria-label="Month view. Money lasts until day ${last}.">${cells}</div>
+  <div class="legend"><span><i style="background:var(--past)"></i>Spent</span><span><i style="background:var(--ink)"></i>Today</span><span><i style="background:var(--teal)"></i>Covered</span><span><i style="border:1.5px dashed var(--coral);background:var(--coral-soft)"></i>Not covered</span><span><i style="background:var(--gold);width:4px"></i>Money ends here</span></div>`;
+}
+function updateRunway(){const r=S.rate||Math.round(calc().avg);$('#runwayOut').innerHTML=runwayHTML(r);$('#rateLbl').textContent=inr(r)+' / day'}
+function homeView(){
+  const c=calc(),by=catTotals(),r=S.rate||Math.round(c.avg);
+  const rows=CATS.map(k=>({k,s:by[k],b:S.budgets[k],p:by[k]/S.budgets[k]})).sort((a,b)=>b.p-a.p).map(o=>{
+    const tone=o.p>1?'bad':o.p>=.8?'warn':'';
+    const chip=o.p>1?`<span class="chip bad">Over by ${inr(o.s-o.b)}</span>`:o.p>=.8?`<span class="chip warn">${Math.round(o.p*100)}% used</span>`:`<span class="chip ok">${Math.round(o.p*100)}% used</span>`;
+    return`<div><div class="row small"><b>${o.k}</b><span class="muted">${inr(o.s)} of ${inr(o.b)} ${chip}</span></div><div class="bar" style="margin-top:6px"><i class="${tone}" style="width:${Math.min(100,o.p*100)}%"></i></div></div>`}).join('');
+  const rec=[...S.exp].reverse().slice(0,6).map(e=>`<div class="row"><div><b>${esc(e.m)}</b><div class="small muted">Day ${e.day} · ${e.cat} ${e.src!=='manual'?`<span class="chip ok">${e.src==='sms'?'from SMS':'from scan'}</span>`:''}</div></div><span class="amt">−${inr(e.amt)}</span></div>`).join('');
+  const monthlyChart=expenseChart(by,c.spent);
+  return`<div class="quick"><button class="btn" data-act="goadd" data-t="sms">${t('paste')}</button><button class="btn ghost" data-act="goadd" data-t="scan">${t('scan')}</button></div>
+  <section class="card hero"><div id="runwayOut">${runwayHTML(r)}</div>
+    <div class="slider"><div class="row"><label for="rate" class="f" style="margin:0">${t('whatif')}</label><b id="rateLbl" class="amt">${inr(r)} / day</b></div>
+    <input type="range" id="rate" min="100" max="600" step="10" value="${r}" aria-describedby="rateHint">
+    <div class="row small muted" id="rateHint"><span>${t('safe')}: <b>${inr(c.safe)}</b></span><button class="btn ghost sm" data-act="usesafe">Use safe limit</button></div></div></section>
+  <div class="grid2"><section class="card"><h2>${t('budgets')}</h2><div class="list" style="margin-top:14px">${rows}</div></section>
+  <section class="card"><h2>Full monthly expenses</h2><p class="small muted" style="margin-top:4px">Category breakdown · this month</p>${monthlyChart}</section></div>
+  <section class="card"><h2>${t('recent')}</h2><div class="list" style="margin-top:14px">${rec}</div></section>`;
+}
+function expenseChart(by,total){
+  const palette=['#0A7A6B','#E8A317','#5377D4','#C93B1E','#8B5CF6','#64748B'];
+  let cursor=0;
+  const slices=CATS.map((cat,i)=>{const amount=by[cat]||0;if(!amount||!total)return null;const start=cursor;cursor+=amount/total*100;return{cat,amount,color:palette[i],start,end:cursor}}).filter(Boolean);
+  const gradient=slices.length?slices.map(x=>`${x.color} ${x.start}% ${x.end}%`).join(', '):'var(--line) 0% 100%';
+  const labels=CATS.map((cat,i)=>`<div class="pie-row"><span class="pie-label"><i class="pie-swatch" style="background:${palette[i]}"></i><span>${cat}</span></span><span class="amt">${inr(by[cat])} <span class="muted small">${total?Math.round(by[cat]/total*100):0}%</span></span></div>`).join('');
+  return`<div class="expense-chart"><div class="pie" role="img" aria-label="Monthly expenses by category: ${CATS.map(cat=>`${cat} ${inr(by[cat])}`).join(', ')}" style="background:conic-gradient(${gradient})"><div class="pie-center"><span class="small muted">Monthly total</span><strong>${inr(total)}</strong></div></div><div class="pie-legend">${labels}</div></div>`;
+}
+/* --- add entry --- */
+function draftPanel(){
+  const d=S.draft;
+  if(!d)return`<div class="muted small">Paste an SMS above. Amount, shop and category fill in automatically, and you can fix anything before saving.</div>`;
+  const conf=!d.amount?['bad','Could not read the amount']:!d.merchant?['warn','Could not find the shop name']:!d.known?['warn','New shop – please check the category']:['ok','All details found'];
+  return`<div class="smsview" aria-label="Your SMS with detected parts highlighted">${highlight(S.sms,d)}</div>
+  <div class="row" style="margin-bottom:12px"><h3>Detected entry</h3><span class="chip ${conf[0]}">${conf[1]}</span></div>
+  <div class="fields"><div><label class="f" for="dAmt">Amount (₹)</label><input type="number" id="dAmt" value="${d.amount||''}" min="0"></div>
+  <div><label class="f" for="dMerch">Paid to</label><input type="text" id="dMerch" value="${esc(d.merchant)}"></div>
+  <div><label class="f" for="dCat">Category</label><select id="dCat">${CATS.map(k=>`<option ${k===d.cat?'selected':''}>${k}</option>`).join('')}</select></div>
+  <div><label class="f">Paid via · Date</label><div style="padding:11px 0" class="small">${esc(d.app)} · ${esc(d.date)}${d.ref?'<br><span class="muted">Ref '+esc(d.ref)+'</span>':''}</div></div></div>
+  <div style="margin-top:16px"><button class="btn" data-act="savesms" ${d.amount?'':'disabled'}>Save entry</button></div>`;
+}
+function scanPanel(){
+  if(S.scanning)return`<div class="receipt" aria-label="Scanning receipt"><div class="scanline"></div>${receiptInner(false)}</div><p class="small muted" style="margin-top:12px">Reading receipt…</p>`;
+  if(!S.scanDone)return`<label class="drop"><input type="file" accept="image/*" capture="environment" id="file"><b>Take a photo or upload a bill</b><br><span class="small">Receipts, or PhonePe / GPay payment screenshots</span></label>
+    <div style="margin-top:12px" class="row"><span class="small muted">No bill handy?</span><button class="btn ghost sm" data-act="samplescan">Try a sample receipt</button></div>
+    <p class="small muted" style="margin-top:12px">Prototype note: the real app reads your photo with Tesseract OCR. This demo always shows the same sample.</p>`;
+  return`<div class="grid2" style="align-items:start"><div class="receipt">${receiptInner(true)}</div>
+  <div><div class="row" style="margin-bottom:12px"><h3>Detected entry</h3><span class="chip ok">92% confident</span></div>
+  <div class="fields"><div><label class="f">Paid to</label><input type="text" id="sMerch" value="Sharma Stationers"></div><div><label class="f">Total (₹)</label><input type="number" id="sAmt" value="280"></div>
+  <div><label class="f">Category</label><select id="sCat">${CATS.map(k=>`<option ${k==='Books'?'selected':''}>${k}</option>`).join('')}</select></div><div><label class="f">Bill date</label><input type="text" value="12/09/2026"></div></div>
+  <p class="small muted" style="margin:12px 0">3 items found: notebooks, gel pens, photocopy.</p>
+  <button class="btn" data-act="savescan">Save entry</button> <button class="btn ghost" data-act="rescan">Scan another</button></div></div>`;
+}
+function receiptInner(hl){
+  const m=x=>hl?`<mark class="m2">${x}</mark>`:x,a=x=>hl?`<mark>${x}</mark>`:x;
+  return`<div style="text-align:center"><b>${m('SHARMA STATIONERS')}</b><br>Near Gate 2, Campus Road</div><hr>
+  <div>Date: ${m('12/09/2026')}</div><hr><div class="ln"><span>Notebook x3</span><span>180</span></div><div class="ln"><span>Gel pen pack</span><span>60</span></div><div class="ln"><span>Xerox 20 pg</span><span>40</span></div><hr>
+  <div class="ln"><b>TOTAL</b><b>${a('₹280')}</b></div><div style="text-align:center;margin-top:6px">Thank you!</div>`;
+}
+function addView(){
+  return`<section class="card"><div class="tabs" role="tablist"><button class="tab ${S.tab==='sms'?'on':''}" role="tab" data-act="tab" data-t="sms">Paste UPI SMS</button><button class="tab ${S.tab==='scan'?'on':''}" role="tab" data-act="tab" data-t="scan">Scan bill or screenshot</button></div>
+  ${S.tab==='sms'?`<label class="f" for="smsText">Paste the payment SMS</label><textarea id="smsText" placeholder="Paid ₹340.00 to Zomato Ltd on 14 Sep 2026 via PhonePe…">${esc(S.sms)}</textarea>
+   <div class="samples"><span class="small muted" style="align-self:center">Try:</span><button class="chip" data-act="sample" data-s="phonepe">PhonePe</button><button class="chip" data-act="sample" data-s="gpay">Google Pay</button><button class="chip" data-act="sample" data-s="bank">Bank SMS</button><button class="chip" data-act="sample" data-s="unknown">Unknown shop</button></div>
+   <div id="draftOut" style="margin-top:18px">${draftPanel()}</div>`:`<div id="scanOut">${scanPanel()}</div>`}</section>`;
+}
+/* --- split --- */
+const AVC=[['var(--teal-soft)','var(--teal-ink)'],['var(--gold-soft)','var(--gold-ink)'],['var(--coral-soft)','var(--coral-ink)'],['var(--past)','var(--ink)']];
+function av(i){const g=S.group.members[i];return`<span class="av" style="background:${AVC[i%4][0]};color:${AVC[i%4][1]}">${g[0]}</span>`}
+function splitView(){
+  const g=S.group,n=nets(),st=settlements();
+  const people=g.members.map((m,i)=>{const v=Math.round(n[i]);return`<div class="row" style="gap:10px">${av(i)}<div><b>${m}</b><div class="small ${v>0?'':'muted'}" style="color:${v>0?'var(--teal-ink)':v<0?'var(--coral-ink)':'var(--muted)'}">${v>0?'gets back '+inr(v):v<0?'owes '+inr(-v):'settled'}</div></div></div>`}).join('');
+  const sets=st.length?st.map((s,i)=>`<div class="row"><div class="row" style="gap:10px;justify-content:flex-start">${av(s.from)}<span><b>${g.members[s.from]}</b> pays <b>${g.members[s.to]}</b></span></div><span class="row" style="gap:10px"><b class="amt">${inr(s.amt)}</b><button class="btn ghost sm" data-act="settle" data-i="${i}">Mark paid</button></span></div>`).join(''):`<p class="muted">Everyone is settled up.</p>`;
+  const ex=[...g.exps].reverse().map(e=>`<div class="row"><div><b>${esc(e.d)}</b><div class="small muted">${g.members[e.by]} paid · split ${e.among.length} ways (${inr(e.amt/e.among.length)} each)</div></div><span class="amt">${inr(e.amt)}</span></div>`).join('');
+  return`<section class="card"><div class="row"><h2>${g.name}</h2><span class="chip">${g.members.length} people</span></div><div class="people" style="margin-top:16px">${people}</div></section>
+  <div class="grid2"><section class="card"><h2>Fewest payments to settle up</h2><p class="small muted" style="margin:4px 0 14px">${st.length} payment${st.length===1?'':'s'} clears everything.</p><div class="list">${sets}</div></section>
+  <section class="card"><h2>Add a shared expense</h2><div class="fields" style="margin-top:14px"><div><label class="f" for="xd">What was it for?</label><input type="text" id="xd" placeholder="Maggi and chai"></div><div><label class="f" for="xa">Amount (₹)</label><input type="number" id="xa" min="1"></div>
+  <div><label class="f" for="xb">Paid by</label><select id="xb">${g.members.map((m,i)=>`<option value="${i}">${m}</option>`).join('')}</select></div></div>
+  <label class="f" style="margin-top:12px">Split between</label><div class="checks">${g.members.map((m,i)=>`<label><input type="checkbox" class="xs" value="${i}" checked>${m}</label>`).join('')}</div>
+  <div style="margin-top:14px"><button class="btn" data-act="addsplit">Add expense</button></div></section></div>
+  <section class="card"><h2>Group expenses</h2><div class="list" style="margin-top:14px">${ex}</div></section>`;
+}
+/* --- ask --- */
+function askView(){
+  const chips=['Pichhle mahine food pe kitna kharch hua?','How much did I spend on travel this month?','Mera paisa kab khatam hoga?','मुझे कहाँ सबसे ज़्यादा खर्च हुआ?','How can I save money?'];
+  return`<section class="card"><div class="log" id="log" aria-live="polite">${S.chat.map(m=>`<div class="msg ${m.r}">${esc(m.t)}</div>`).join('')}</div>
+  <div class="samples" style="margin:0 0 4px">${chips.map(c=>`<button class="chip" data-act="chip" data-q="${esc(c)}">${esc(c)}</button>`).join('')}</div>
+  <div class="chat-in"><input type="text" id="chatIn" placeholder="Type in Hindi, Hinglish or English" aria-label="Your question"><button class="btn" data-act="send">Send</button></div>
+  <p class="small muted" style="margin-top:12px">Prototype note: answers here come from simple rules. The real app sends your question and a summary of your data to an LLM API from the backend.</p></section>`;
+}
+/* --- tips --- */
+function tipsView(){
+  const tl=tips().map(x=>`<section class="card tip ${x.tone==='warn'?'':x.tone}"><h3>${x.t}</h3><p style="margin-top:6px">${x.b}</p><p class="rule">${x.rule}</p></section>`).join('');
+  return`<div class="grid2" style="margin-top:0;align-items:start"><div>${tl||'<section class="card"><p>No tips yet. Add a few entries and Kharcha will spot patterns.</p></section>'}</div>
+  <section class="card"><h2>Laptop fund</h2><p class="small muted" style="margin:4px 0 14px">Savings goal</p><div class="row"><b class="kpi">${inr(18000)}</b><span class="muted">of ${inr(45000)}</span></div><div class="bar" style="margin:12px 0 8px"><i style="width:40%"></i></div>
+  <p class="small">At ${inr(1500)} a month you reach it in 18 months. Saving ${inr(2500)} a month gets you there in 11.</p></section></div>`;
+}
+/* --- admin --- */
+function bars(items,suffix,max){return`<div class="list">${items.map(([n,v,tone])=>`<div><div class="row small"><span>${n}</span><b class="amt">${suffix===''&&v>100?inr(v):v+suffix}</b></div><div class="bar" style="margin-top:6px"><i class="${tone||''}" style="width:${v/(max||100)*100}%"></i></div></div>`).join('')}</div>`}
+function canteenOut(){
+  const p=S.canteenP/100,e=-1.1,vol=e*p,rev=(1+p)*(1+vol)-1,price=60*(1+p);
+  const f=x=>(x>0?'+':'')+(x*100).toFixed(1)+'%';
+  return`<div class="grid3" style="margin-top:14px"><div><div class="small muted">Thali price</div><div class="kpi">${inr(price)}</div></div><div><div class="small muted">Orders (estimate)</div><div class="kpi">${f(vol)}</div></div><div><div class="small muted">Canteen revenue</div><div class="kpi" style="color:${rev<0?'var(--coral-ink)':'var(--teal-ink)'}">${f(rev)}</div></div></div>`;
+}
+function adminView(){
+  const tabs=[['overview','Overview'],['canteen','Canteen and hostel'],['aid','Scholarship planning']];
+  const head=`<div class="privacy"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;margin-top:2px"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg><div><b>Anonymous by design.</b> You see groups of 20 or more students. Names and individual transactions are never shown. Sample data for 1,284 students.</div></div>
+  <div class="tabs" style="margin-top:18px" role="tablist">${tabs.map(([k,n])=>`<button class="tab ${S.adminTab===k?'on':''}" role="tab" data-act="atab" data-t="${k}">${n}</button>`).join('')}</div>`;
+  let b='';
+  if(S.adminTab==='overview'){
+    b=`<div class="grid3" style="margin-top:0"><section class="card"><div class="small muted">Average spend per student</div><div class="kpi">₹7,850</div><div class="small muted">per month</div></section>
+    <section class="card"><div class="small muted">Money ends before day 25</div><div class="kpi">38%</div><div class="small muted">of students</div></section>
+    <section class="card"><div class="small muted">Share of spend on food</div><div class="kpi">41%</div><div class="small muted">largest category</div></section></div>
+    <div class="grid2"><section class="card"><h2>Where the money goes</h2><div style="margin-top:14px">${bars([['Food',41],['Hostel',19],['Other',12],['Travel',11],['Fun',9],['Books',8]],'%',45)}</div></section>
+    <section class="card"><h2>Spending by week of the month</h2><p class="small muted" style="margin:4px 0 14px">Average per student</p>${bars([['Week 1',2650],['Week 2',2050],['Week 3',1750],['Week 4',1400]],'',2800)}
+    <p class="small" style="margin-top:12px">34% is spent in week 1, so week 4 is when students run short.</p></section></div>`;
+  }
+  if(S.adminTab==='canteen'){
+    b=`<div class="grid2" style="margin-top:0"><section class="card"><h2>Where food money goes</h2><div style="margin-top:14px">${bars([['Delivery apps',39,'warn'],['Hostel mess',34],['Campus canteen',27]],'%',45)}</div><p class="small" style="margin-top:12px">Nearly 4 in 10 food rupees go to delivery apps. A canteen offer could win some back.</p></section>
+    <section class="card"><h2>Try a canteen price change</h2><p class="small muted" style="margin:4px 0">Base thali price ₹60. Price sensitivity is assumed at −1.1 until you validate it with a survey.</p>
+    <label class="f" for="cp" style="margin-top:12px">Price change: <b id="cpLbl">${S.canteenP>0?'+':''}${S.canteenP}%</b></label><input type="range" id="cp" min="-20" max="20" step="5" value="${S.canteenP}"><div id="cpOut">${canteenOut()}</div></section></div>
+    <section class="card"><h2>Hostels compared</h2><div style="overflow-x:auto;margin-top:10px"><table><tr><th>Hostel</th><th>Students</th><th>Avg spend</th><th>Money ends before day 25</th><th>Mess fee</th></tr>
+    <tr><td>Hostel A</td><td>320</td><td>₹7,400</td><td><span class="chip ok">33%</span></td><td>₹3,000</td></tr><tr><td>Hostel B</td><td>410</td><td>₹8,100</td><td><span class="chip warn">41%</span></td><td>₹3,200</td></tr>
+    <tr><td>Hostel C</td><td>290</td><td>₹7,900</td><td><span class="chip ok">36%</span></td><td>₹3,100</td></tr><tr><td>Hostel D</td><td>264</td><td>₹8,300</td><td><span class="chip bad">44%</span></td><td>₹3,400</td></tr></table></div>
+    <p class="small" style="margin-top:12px">Hostel D has the highest mess fee and the most students running out early. It is a good place to review pricing first.</p></section>`;
+  }
+  if(S.adminTab==='aid'){
+    b=`<section class="card" style="margin-top:0"><h2>Running out early, by monthly family support</h2><p class="small muted" style="margin:4px 0 14px">Share of students whose money ends before day 20</p>
+    ${bars([['Under ₹5,000 (212 students)',71,'bad'],['₹5,000 to ₹8,000 (430)',44,'warn'],['₹8,000 to ₹12,000 (390)',21],['Over ₹12,000 (252)',6]],'%',100)}</section>
+    <section class="card"><h2>Draft proposal for the scholarship committee</h2><p style="margin-top:8px">About 150 students in the lowest band run out of money before day 20. A top-up of ₹1,500 a month for them would cost around ₹2.25 lakh a month.</p>
+    <div style="margin-top:14px" class="row"><span class="small muted">Numbers are sample data. Names are never included.</span><button class="btn" data-act="export">Export report (PDF)</button></div></section>`;
+  }
+  return head+b;
+}
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;
+  const a=b.dataset.act;
+  if(a==='login'){const modal=$('#loginModal');modal.hidden=false;$('#loginEmail').focus()}
+  else if(a==='closeLogin')$('#loginModal').hidden=true
+  else if(a==='loginType'){
+    S.loginType=b.dataset.type;
+    document.querySelectorAll('[data-act="loginType"]').forEach(button=>{const selected=button.dataset.type===S.loginType;button.classList.toggle('on',selected);button.setAttribute('aria-pressed',String(selected))});
+    $('#loginEmail').placeholder=S.loginType==='admin'?'admin@college.edu':'student@college.edu';
+  }
+  else if(a==='nav'){S.view=b.dataset.v;render();window.scrollTo(0,0)}
+  else if(a==='role'){S.role=b.dataset.r;S.view=S.role==='admin'?'campus':'home';render()}
+  else if(a==='lang'){S.lang=S.lang==='en'?'hi':'en';render()}
+  else if(a==='theme'){const r=document.documentElement,d=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme:dark)').matches;r.dataset.theme=d?'light':'dark'}
+  else if(a==='goadd'){S.view='add';S.tab=b.dataset.t;render();window.scrollTo(0,0)}
+  else if(a==='tab'){S.tab=b.dataset.t;render()}
+  else if(a==='atab'){S.adminTab=b.dataset.t;render()}
+  else if(a==='usesafe'){S.rate=Math.round(calc().safe);render()}
+  else if(a==='sample'){S.sms=SAMPLES[b.dataset.s];S.draft=parseSMS(S.sms);render()}
+  else if(a==='savesms'){const d=S.draft;addExpense(d.merchant||'Unknown',d.cat,d.amount,'sms');S.sms='';S.draft=null}
+  else if(a==='samplescan')startScan();
+  else if(a==='rescan'){S.scanDone=false;render()}
+  else if(a==='savescan'){addExpense($('#sMerch').value||'Unknown',$('#sCat').value,+$('#sAmt').value||0,'scan');S.scanDone=false}
+  else if(a==='addsplit'){
+    const d=$('#xd').value.trim(),amt=+$('#xa').value,by=+$('#xb').value,among=[...document.querySelectorAll('.xs:checked')].map(x=>+x.value);
+    if(!d||!(amt>0)||!among.length){toast('Add a name, an amount and at least one person.');return}
+    S.group.exps.push({d,amt,by,among});render();toast('Added. Balances updated.');
+  }
+  else if(a==='settle'){const s=settlements()[+b.dataset.i];S.group.paid.push(s);render();toast(`${S.group.members[s.from]} paid ${S.group.members[s.to]} ${inr(s.amt)}.`)}
+  else if(a==='chip'){ask(b.dataset.q)}
+  else if(a==='send'){const i=$('#chatIn');if(i.value.trim())ask(i.value.trim())}
+  else if(a==='export')toast('In the full app this downloads a PDF for the committee.');
+});
+document.addEventListener('input',e=>{
+  const id=e.target.id;
+  if(id==='smsText'){S.sms=e.target.value;S.draft=parseSMS(S.sms);$('#draftOut').innerHTML=draftPanel()}
+  else if(id==='rate'){S.rate=+e.target.value;updateRunway()}
+  else if(id==='cp'){S.canteenP=+e.target.value;$('#cpLbl').textContent=(S.canteenP>0?'+':'')+S.canteenP+'%';$('#cpOut').innerHTML=canteenOut()}
+  else if(id==='dAmt'){S.draft.amount=+e.target.value;const sb=document.querySelector('[data-act=savesms]');if(sb)sb.disabled=!S.draft.amount}
+  else if(id==='dMerch'){S.draft.merchant=e.target.value}
+});
+document.addEventListener('change',e=>{
+  if(e.target.id==='dCat')S.draft.cat=e.target.value;
+  if(e.target.id==='file'&&e.target.files.length)startScan();
+});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='chatIn'){const v=e.target.value.trim();if(v)ask(v)}});
+$('#loginForm').addEventListener('submit',e=>{e.preventDefault();S.role=S.loginType;S.view=S.role==='admin'?'campus':'home';$('#loginModal').hidden=true;render();toast(`${S.role==='admin'?'College admin':'Student'} demo login selected. Authentication is not connected.`)});
+$('#loginModal').addEventListener('click',e=>{if(e.target.id==='loginModal')e.currentTarget.hidden=true});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('#loginModal').hidden=true});
+function ask(q){
+  S.chat.push({r:'u',t:q});render();
+  setTimeout(()=>{S.chat.push({r:'b',t:answer(q)});if(S.view==='ask')render()},450);
+}
+function startScan(){S.scanning=true;S.scanDone=false;render();setTimeout(()=>{S.scanning=false;S.scanDone=true;if(S.view==='add'&&S.tab==='scan')render()},1300)}
+function addExpense(m,cat,amt,src){
+  if(!(amt>0))return;
+  S.exp.push({day:S.today,m,cat,amt,src});S.rate=null;
+  const c=calc(),by=catTotals(),p=Math.round(by[cat]/S.budgets[cat]*100),last=lastCovered(c.avg);
+  S.view='home';render();window.scrollTo(0,0);
+  toast(`Saved ${inr(amt)} · ${cat}. ${p>=80?cat+' budget '+p+'% used. ':''}Money now lasts until the ${ord(last)}.`);
+}
+render();
+</script>
+</body>
+</html>
